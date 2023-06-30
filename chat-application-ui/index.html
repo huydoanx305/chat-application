@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Index</title>
+  </head>
+  <body>
+    <h1>Chat Application</h1>
+
+    <ul id="messages"></ul>
+
+    <form id="chat-form" action="">
+        <input type="text" id="chat-message" />
+        <button id="send">Gửi</button>
+    </form>
+    
+  </body>
+
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+  <script>
+    const socket = io("https://d2fe-2405-4803-fdea-a950-b9ca-34fe-db2c-3053.ngrok-free.app");
+
+    const name = prompt("Tên bạn là gì?")
+    const roomNumber = prompt("Số phòng?")
+    socket.emit("client_send_room", roomNumber);
+    //send message
+    const chatForm = document.getElementById("chat-form")
+    const chatMessage = document.getElementById("chat-message")
+    
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const message = chatMessage.value;
+        socket.emit("client_send_message", {name: name, roomNumber: roomNumber, content: message});
+        chatMessage.value = '';
+    })
+    
+    //receive message
+    const messages = document.getElementById("messages")
+    socket.on('server_send_message', (message) => {
+        const chatItem = document.createElement("li");
+        chatItem.textContent = `${message.name}: ${message.content}`;
+        messages.appendChild(chatItem);
+    });
+
+  </script>
+</html>
